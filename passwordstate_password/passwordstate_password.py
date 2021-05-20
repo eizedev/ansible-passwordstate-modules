@@ -1,11 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """ PasswordState Ansible Module """
 
 from ansible.module_utils.basic import *
 
-import urllib
-import urllib2
+from urllib.error import URLError
+from urllib.parse import urlencode
+from urllib.request import Request,urlopen
 import json
 
 class PasswordIdException(Exception):
@@ -184,10 +185,10 @@ class PasswordState(object):
         request = self._create_request(uri, method)
         try:
             if params:
-                response = urllib2.urlopen(request, urllib.urlencode(params)).read()
+                response = urlopen(request, urlencode(params)).read()
             else:
-                response = urllib2.urlopen(request).read()
-        except urllib2.URLError as inst:
+                response = urlopen(request).read()
+        except URLError as inst:
             msg = str(inst)
             if "No Passwords found in the Password Lists for PasswordListID of" in msg:
                 return False
@@ -200,7 +201,7 @@ class PasswordState(object):
 
     def _create_request(self, uri, method):
         """ creates a request object """
-        request = urllib2.Request(self.url + '/api/' +uri)
+        request = Request(self.url + '/api/' +uri)
         request.add_header('APIKey', self.api_key)
         request.get_method = lambda: method
         return request
