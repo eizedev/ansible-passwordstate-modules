@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/run_tests/badge.svg)](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/run_tests)
+[![Build Status](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/build.yml/badge.svg)](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/build.yml)
 
 # Ansible PasswordState Modules
 
