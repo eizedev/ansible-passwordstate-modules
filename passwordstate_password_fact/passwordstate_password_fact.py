@@ -6,7 +6,8 @@ from ansible.module_utils.basic import *
 
 from urllib.error import URLError
 from urllib.parse import urlencode
-from urllib.request import Request,urlopen
+from urllib.request import Request
+import urllib
 import json
 
 class PasswordIdException(Exception):
@@ -103,9 +104,9 @@ class PasswordState(object):
         request = self._create_request(uri, method)
         try:
             if params:
-                response = urlopen(request, urlencode(params)).read()
+                response = urllib.request.urlopen(request, urlencode(params)).read()
             else:
-                response = urlopen(request).read()
+                response = urllib.request.urlopen(request).read()
         except URLError as inst:
             self.module.fail_json(msg="Failed: %s" % str(inst))
             return None

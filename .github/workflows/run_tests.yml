@@ -1,0 +1,28 @@
+name: Run Tests
+
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      # Install pip3
+      - name: Install pip3
+        run: sudo apt-get install python3-pip -y
+
+      # Install Python preqrequisites
+      - name: Install python prereqs
+        run: python3 -m pip install -r dev-requirements.txt
+
+      # Run python tests
+      - name: Run python tests
+        run: python3 -m pytest

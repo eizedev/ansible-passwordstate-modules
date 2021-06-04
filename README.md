@@ -1,9 +1,12 @@
-[![Build Status](https://travis-ci.org/boxuk/ansible-boxuk-modules-passwordstate.svg)](https://travis-ci.org/boxuk/ansible-boxuk-modules-passwordstate)
+[![Build Status](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/run_tests/badge.svg)](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/run_tests)
 
 # Ansible PasswordState Modules
 
 This repository contains two ansible modules for
 setting and getting passwordstate passwords.
+
+It has been rebuilt from the original [BoxUK modules](https://github.com/boxuk/ansible-boxuk-modules-passwordstate)
+to run on Python 3.
 
 ## passwordstate_password
 

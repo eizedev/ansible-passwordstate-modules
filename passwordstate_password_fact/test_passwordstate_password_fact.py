@@ -1,6 +1,6 @@
 """ PasswordState Test """
 
-import unittest2 as unittest
+import unittest
 
 from passwordstate_password_fact import Password
 from passwordstate_password_fact import PasswordState
@@ -10,7 +10,7 @@ import mock
 class PasswordTest(unittest.TestCase):
     """ PasswordTest """
 
-    @mock.patch('urllib2.urlopen', autospec=True)
+    @mock.patch('urllib.request.urlopen', autospec=True)
     def test_gather_facts_id(self, mock_urlopen):
         """ gather facts by id """
         value = '[{"Password": "foo", "Title": "bar", ' \
@@ -28,9 +28,9 @@ class PasswordTest(unittest.TestCase):
 
         facts = password.gather_facts('fact_name_prefix')
         expected = {'fact_name_prefix_password': 'foo'}
-        self.assertEquals(expected, facts)
+        self.assertEqual(expected, facts)
 
-    @mock.patch('urllib2.urlopen', autospec=True)
+    @mock.patch('urllib.request.urlopen', autospec=True)
     def test_gather_facts_field(self, mock_urlopen):
         """ gather facts by custom field """
         value = '[{"Password": "foo", "Title": "bar", ' \
@@ -48,4 +48,4 @@ class PasswordTest(unittest.TestCase):
 
         facts = password.gather_facts('fact_name_prefix')
         expected = {'fact_name_prefix_password': 'foo'}
-        self.assertEquals(expected, facts)
+        self.assertEqual(expected, facts)

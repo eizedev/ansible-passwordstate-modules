@@ -6,7 +6,8 @@ from ansible.module_utils.basic import *
 
 from urllib.error import URLError
 from urllib.parse import urlencode
-from urllib.request import Request,urlopen
+from urllib.request import Request
+import urllib
 import json
 
 class PasswordIdException(Exception):
@@ -185,9 +186,9 @@ class PasswordState(object):
         request = self._create_request(uri, method)
         try:
             if params:
-                response = urlopen(request, urlencode(params)).read()
+                response = urllib.request.urlopen(request, urlencode(params)).read()
             else:
-                response = urlopen(request).read()
+                response = urllib.request.urlopen(request).read()
         except URLError as inst:
             msg = str(inst)
             if "No Passwords found in the Password Lists for PasswordListID of" in msg:
