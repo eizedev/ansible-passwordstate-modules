@@ -4,11 +4,8 @@
 
 from ansible.module_utils.basic import *
 
-from urllib.error import URLError
-from urllib.parse import urlencode
-from urllib.request import Request
-import urllib
-import json
+import requests
+from json.decoder import JSONDecodeError
 
 class PasswordIdException(Exception):
     msg = 'Either the password id or the match ' \
@@ -96,29 +93,30 @@ class PasswordState(object):
 
     def _request(self, uri, method, params=None):
         """ send a request to the api and return as json """
-        response = self._raw_request(uri, method, params)
-        return json.loads(response)
+        full_uri = self.url + '/api/' + uri
+        headers = { 'APIKey' : self.api_key }
 
-    def _raw_request(self, uri, method, params=None):
-        """ send a request to the api and return the raw response """
-        request = self._create_request(uri, method)
+        request_methods = {
+            'GET' :  requests.get,
+            'PUT' :  requests.put,
+            'POST' : requests.post
+        }
+
         try:
-            if params:
-                response = urllib.request.urlopen(request, urlencode(params)).read()
-            else:
-                response = urllib.request.urlopen(request).read()
-        except URLError as inst:
+            response = request_methods[method](full_uri, headers=headers, params=params)
+        except requests.exceptions.RequestException as inst:
             self.module.fail_json(msg="Failed: %s" % str(inst))
             return None
 
-        return response
+        if response.status_code > 204:
+            self.module.fail_json(msg="Failed: %s" % str(response.json()))
+            return None
 
-    def _create_request(self, uri, method):
-        """ creates a request object """
-        request = Request(self.url + '/api/' +uri)
-        request.add_header('APIKey', self.api_key)
-        request.get_method = lambda: method
-        return request
+        try:
+            return response.json()
+        except JSONDecodeError as inst:
+            self.module.fail_json(msg="Failed: %s" % str(inst))
+            return None
 
     @staticmethod
     def _filter_passwords(passwords, field, value):

@@ -4,11 +4,8 @@
 
 from ansible.module_utils.basic import *
 
-from urllib.error import URLError
-from urllib.parse import urlencode
-from urllib.request import Request
-import urllib
-import json
+import requests
+from json.decoder import JSONDecodeError
 
 class PasswordIdException(Exception):
     msg = 'Either the password id or the match ' \
@@ -66,7 +63,7 @@ class PasswordState(object):
             }
             params = PasswordState._merge_dicts(fields, params)
 
-            self._raw_request('passwords', 'PUT', params)
+            self._request('passwords', 'PUT', params)
         elif password.type == 'match_field':
             if self._has_password(password):
                 pid = self._get_password_id(password)
@@ -77,7 +74,7 @@ class PasswordState(object):
                 }
                 params = PasswordState._merge_dicts(fields, params)
 
-                self._raw_request('passwords', 'PUT', params)
+                self._request('passwords', 'PUT', params)
             else:
                 if not 'Title' in fields:
                     self.module.fail_json(msg='Title is required when creating passwords')
@@ -89,7 +86,7 @@ class PasswordState(object):
                 }
                 params = PasswordState._merge_dicts(fields, params)
 
-                self._raw_request('passwords', 'POST', params)
+                self._request('passwords', 'POST', params)
 
         self.module.exit_json(changed=True)
         return None
@@ -176,36 +173,30 @@ class PasswordState(object):
 
     def _request(self, uri, method, params=None):
         """ send a request to the api and return as json """
-        response = self._raw_request(uri, method, params)
-        if response == False:
-            return []
-        return json.loads(response)
+        full_uri = self.url + '/api/' + uri
+        headers = { 'APIKey' : self.api_key }
 
-    def _raw_request(self, uri, method, params=None):
-        """ send a request to the api and return the raw response """
-        request = self._create_request(uri, method)
+        request_methods = {
+            'GET' :  requests.get,
+            'PUT' :  requests.put,
+            'POST' : requests.post
+        }
+
         try:
-            if params:
-                response = urllib.request.urlopen(request, urlencode(params)).read()
-            else:
-                response = urllib.request.urlopen(request).read()
-        except URLError as inst:
-            msg = str(inst)
-            if "No Passwords found in the Password Lists for PasswordListID of" in msg:
-                return False
+            response = request_methods[method](full_uri, headers=headers, params=params)
+        except requests.exceptions.RequestException as inst:
+            self.module.fail_json(msg="Failed: %s" % str(inst))
+            return None
 
-            else:
-                self.module.fail_json(msg="Failed: %s" % str(inst))
-                return None
+        if response.status_code > 204:
+            self.module.fail_json(msg="Failed: %s" % str(response.json()))
+            return None
 
-        return response
-
-    def _create_request(self, uri, method):
-        """ creates a request object """
-        request = Request(self.url + '/api/' +uri)
-        request.add_header('APIKey', self.api_key)
-        request.get_method = lambda: method
-        return request
+        try:
+            return response.json()
+        except JSONDecodeError as inst:
+            self.module.fail_json(msg="Failed: %s" % str(inst))
+            return None
 
     @staticmethod
     def _filter_passwords(passwords, field, value):

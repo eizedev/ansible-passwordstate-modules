@@ -157,14 +157,14 @@ class PasswordStateTest(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
-    def test_update_passwordmatch_match_id(self, mock_urlopen):
+    @mock.patch('requests.get', autospec=True)
+    def test_update_passwordmatch_match_id(self, mock_get):
         """ password that doesnt need updating """
-        value = '[{"Password": "foo", "Title": "bar", ' \
-                '"UserName": "foobar", "GenericField1": "123", ' \
-                '"PasswordID": 999}]'
+        value = [{"Password": "foo", "Title": "bar",
+                "UserName": "foobar", "GenericField1": "123",
+                "PasswordID": 999}]
 
-        mock_urlopen.return_value.read.return_value = value
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : value)
 
         module = mock.Mock()
         module.exit_json = mock.MagicMock()
@@ -180,13 +180,13 @@ class PasswordStateTest(unittest.TestCase):
 
         module.exit_json.assert_called_with(changed=False)
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
-    def test_update_passwordmatch_match_field(self, mock_urlopen):
+    @mock.patch('requests.get', autospec=True)
+    def test_update_passwordmatch_match_field(self, mock_get):
         """ password that doesnt need updating """
-        value = '[{"Password": "foo", "Title": "bar", ' \
-                '"UserName": "foobar", "GenericField1": "123", ' \
-                '"PasswordID": 999}]'
-        mock_urlopen.return_value.read.return_value = value
+        value = [{"Password": "foo", "Title": "bar",
+                "UserName": "foobar", "GenericField1": "123",
+                "PasswordID": 999}]
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : value)
 
         module = mock.Mock()
         module.exit_json = mock.MagicMock()
@@ -202,18 +202,18 @@ class PasswordStateTest(unittest.TestCase):
 
         module.exit_json.assert_called_with(changed=False)
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
+    @mock.patch('requests.get', autospec=True)
     @data({'password': 'newpassword'},
           {'Title': 'newtitle'},
           {'UserName': 'newuser'},
           {'password': 'foo', 'Title': 'newtitle'},
           {'Title': 'bar', 'UserName': 'newuser'})
-    def test_update_passwordmatch_nomatch_id(self, fields, mock_urlopen):
+    def test_update_passwordmatch_nomatch_id(self, fields, mock_get):
         """ password that doesnt need updating """
-        value = '[{"Password": "foo", "Title": "bar", ' \
-                '"UserName": "foobar", "GenericField1": "123", ' \
-                '"PasswordID": 999}]'
-        mock_urlopen.return_value.read.return_value = value
+        value = [{"Password": "foo", "Title": "bar",
+                "UserName": "foobar", "GenericField1": "123",
+                "PasswordID": 999}]
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : value)
 
         module = mock.Mock()
         module.exit_json = mock.MagicMock()
@@ -228,18 +228,18 @@ class PasswordStateTest(unittest.TestCase):
 
         module.exit_json.assert_called_with(changed=True)
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
+    @mock.patch('requests.get', autospec=True)
     @data({'password': 'newpassword'},
           {'Title': 'newtitle'},
           {'UserName': 'newuser'},
           {'password': 'foo', 'Title': 'newtitle'},
           {'Title': 'bar', 'UserName': 'newuser'})
-    def test_update_passwordmatch_nomatch_field(self, fields, mock_urlopen):
+    def test_update_passwordmatch_nomatch_field(self, fields, mock_get):
         """ password that doesnt need updating """
-        value = '[{"Password": "foo", "Title": "bar", ' \
-                '"UserName": "foobar", "GenericField1": "123", ' \
-                '"PasswordID": 999}]'
-        mock_urlopen.return_value.read.return_value = value
+        value = [{"Password": "foo", "Title": "bar",
+                "UserName": "foobar", "GenericField1": "123",
+                "PasswordID": 999}]
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : value)
 
         module = mock.Mock()
         module.exit_json = mock.MagicMock()
@@ -254,10 +254,10 @@ class PasswordStateTest(unittest.TestCase):
 
         module.exit_json.assert_called_with(changed=True)
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
-    def test_update_newpassword_notitle(self, mock_urlopen):
+    @mock.patch('requests.get', autospec=True)
+    def test_update_newpassword_notitle(self, mock_get):
         """ password that doesnt need updating """
-        mock_urlopen.return_value.read.return_value = '[]'
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : [ ])
 
         module = mock.Mock()
         module.fail_json = mock.MagicMock()
@@ -273,10 +273,10 @@ class PasswordStateTest(unittest.TestCase):
 
         module.fail_json.assert_called_with(msg='Title is required when creating passwords')
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
-    def test_update_newpassword_withtitle(self, mock_urlopen):
+    @mock.patch('requests.get', autospec=True)
+    def test_update_newpassword_withtitle(self, mock_get):
         """ password that doesnt need updating """
-        mock_urlopen.return_value.read.return_value = '[]'
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : [ ])
 
         module = mock.Mock()
         module.exit_json = mock.MagicMock()

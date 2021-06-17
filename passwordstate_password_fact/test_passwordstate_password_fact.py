@@ -10,13 +10,13 @@ import mock
 class PasswordTest(unittest.TestCase):
     """ PasswordTest """
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
-    def test_gather_facts_id(self, mock_urlopen):
+    @mock.patch('requests.get', autospec=True)
+    def test_gather_facts_id(self, mock_get):
         """ gather facts by id """
-        value = '[{"Password": "foo", "Title": "bar", ' \
-                '"UserName": "foobar", "GenericField1": "123", ' \
-                '"PasswordID": 999}]'
-        mock_urlopen.return_value.read.return_value = value
+        value = [{"Password": "foo", "Title": "bar",
+                "UserName": "foobar", "GenericField1": "123",
+                "PasswordID": 999}]
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : value)
 
         module = mock.Mock()
         url = "http://passwordstate"
@@ -30,13 +30,13 @@ class PasswordTest(unittest.TestCase):
         expected = {'fact_name_prefix_password': 'foo'}
         self.assertEqual(expected, facts)
 
-    @mock.patch('urllib.request.urlopen', autospec=True)
-    def test_gather_facts_field(self, mock_urlopen):
+    @mock.patch('requests.get', autospec=True)
+    def test_gather_facts_field(self, mock_get):
         """ gather facts by custom field """
-        value = '[{"Password": "foo", "Title": "bar", ' \
-                '"UserName": "foobar", "GenericField1": "123", ' \
-                '"PasswordID": 999}]'
-        mock_urlopen.return_value.read.return_value = value
+        value = [{"Password": "foo", "Title": "bar",
+                "UserName": "foobar", "GenericField1": "123",
+                "PasswordID": 999}]
+        mock_get.return_value = mock.Mock(status_code=200, json=lambda : value)
 
         module = mock.Mock()
         url = "http://passwordstate"
