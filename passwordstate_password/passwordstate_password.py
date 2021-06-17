@@ -6,6 +6,7 @@ from ansible.module_utils.basic import *
 
 import requests
 from json.decoder import JSONDecodeError
+from requests_ntlm import HttpNtlmAuth
 
 class PasswordIdException(Exception):
     msg = 'Either the password id or the match ' \
@@ -45,10 +46,12 @@ class Password(object):
 
 class PasswordState(object):
     """ PasswordState """
-    def __init__(self, module, url, api_key):
+    def __init__(self, module, url, api_key, api_username = None, api_password = None):
         self.module = module
         self.url = url
         self.api_key = api_key
+        self.api_username = api_username
+        self.api_password = api_password
 
     def update(self, password, fields):
         """ update the password in PasswordState """
@@ -173,17 +176,21 @@ class PasswordState(object):
 
     def _request(self, uri, method, params=None):
         """ send a request to the api and return as json """
-        full_uri = self.url + '/api/' + uri
-        headers = { 'APIKey' : self.api_key }
-
         request_methods = {
-            'GET' :  requests.get,
-            'PUT' :  requests.put,
-            'POST' : requests.post
+            'GET':  requests.get,
+            'PUT':  requests.put,
+            'POST': requests.post
         }
 
         try:
-            response = request_methods[method](full_uri, headers=headers, params=params)
+            if self.api_key != None:
+                full_uri = self.url + '/api/' + uri
+                headers = { 'APIKey': self.api_key }
+                response = request_methods[method](full_uri, headers=headers, params=params)
+            else:
+                full_uri = self.url + '/winapi/' + uri
+                winauth = HttpNtlmAuth(self.api_username, self.api_password)
+                response = request_methods[method](full_uri, auth=winauth, params=params)
         except requests.exceptions.RequestException as inst:
             self.module.fail_json(msg="Failed: %s" % str(inst))
             return None
@@ -213,24 +220,34 @@ class PasswordState(object):
 def main():
     """ main """
     module = AnsibleModule(
-        argument_spec=dict(
-            state=dict(default='present', choices=['present']),
-            url=dict(required=True),
-            api_key=dict(required=True),
-            password_list_id=dict(required=False),
-            match_field=dict(required=False),
-            match_field_id=dict(required=False),
-            password_id=dict(required=False),
-            username=dict(required=False),
-            password=dict(required=False),
-            title=dict(required=False)
-        ),
-        supports_check_mode=False,
+        argument_spec = {
+            'state': {
+                'default': 'present',
+                'choices': ['present']
+                },
+            'url': { 'required': True },
+            'api_key': { 'required': False },
+            'api_username': { 'required': False },
+            'api_password': { 'required': False },
+            'password_list_id': { 'required': False },
+            'match_field': { 'required': False },
+            'match_field_id': { 'required': False },
+            'password_id': { 'required': False },
+            'username': { 'required': False },
+            'password': { 'required': False },
+            'title': { 'required': False }
+        },
+        supports_check_mode = False,
+        mutually_exclusive = [('api_key', 'api_username')],
+        required_one_of = [('api_key', 'api_username')],
+        required_together = [('api_username', 'api_password')]
     )
 
     state = module.params['state']
     url = module.params['url']
     api_key = module.params['api_key']
+    api_username = module.params['api_username']
+    api_password = module.params['api_password']
     password_list_id = module.params['password_list_id']
     match_field = module.params['match_field']
     match_field_id = module.params['match_field_id']
@@ -239,7 +256,7 @@ def main():
     new_password = module.params['password']
     title = module.params['title']
 
-    api = PasswordState(module, url, api_key)
+    api = PasswordState(module, url, api_key, api_username, api_password)
     password = Password(api, password_list_id,
                         {"id": password_id, "field": match_field, "field_id": match_field_id})
 
