@@ -6,15 +6,18 @@ This repository contains two ansible modules for
 setting and getting passwordstate passwords.
 
 It has been rebuilt from the original [BoxUK modules](https://github.com/boxuk/ansible-boxuk-modules-passwordstate)
-to run on Python 3.
+to run on Python 3, use the `requests` library in place of `urllib`, and add functionality for using the Windows Authentication API.
+
+All Python prerequisites can be installed using `python3 -m pip install -r dev-requirements.txt`.
 
 ## passwordstate_password
 
+The `passwordstate_password` module enables adding and updating of passwords inside PasswordState:
+
 ```
 - name: push password to passwordstate
-  sudo: False
-  local_action:
-    module: 'passwordstate_password'
+  delegate_to: localhost
+  passwordstate_password:
     url: 'http://passwordstate.internal.corp.net'
     api_key: 'xxxxxxxxx'
     password_list_id: 'xxxx'
@@ -27,13 +30,14 @@ to run on Python 3.
 
 ## passwordstate_password_fact
 
-Fetch by custom match field/id:
+The `passwordstate_password_fact` module enables fetching of passwords stored in PasswordState:
+
+### Fetch by custom match field/id:
 
 ```
 - name: get password from passwordstate
-  sudo: False
-  local_action:
-    module: 'passwordstate_password'
+  delegate_to: localhost
+  passwordstate_password_fact:
     url: 'http://passwordstate.internal.corp.net'
     api_key: 'xxxxxxxxx'
     password_list_id: 'xxxx'
@@ -44,19 +48,31 @@ Fetch by custom match field/id:
 - debug: var=myaccount_password
 ```
 
-
-Fetch by password id:
+### Fetch by password id:
 
 ```
 - name: get password from passwordstate
-  sudo: False
-  local_action:
-    module: 'passwordstate_password'
+  delegate_to: localhost
+  passwordstate_password_fact:
     url: 'http://passwordstate.internal.corp.net'
     api_key: 'xxxxxxxxx'
-    password_list_id: 'xxxx'
     password_id: 'xx'
     fact_name: 'myaccount'
 
 - debug: var=myaccount_password
+```
+
+## Windows Authentication API
+
+PasswordState offers an API that uses Windows authentication instead of standard API keys.  The Windows API can be used by simply replacing the `api_key` option with the `api_username` and `api_password` options, which can be prompted for at the beginning of a playbook or otherwise stored and passed:
+
+```
+- name: get password from passwordstate
+  delegate_to: localhost
+  passwordstate_password_fact:
+    url: 'http://passwordstate.internal.corp.net'
+    api_username: '{{ passwordstate_api_username }}'
+    api_password: '{{ passwordstate_api_password }}'
+    password_id: 'xx'
+    fact_name: 'myaccount'
 ```
