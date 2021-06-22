@@ -46,7 +46,7 @@ class Password(object):
 
     def gather_facts(self, fact_name):
         """ gather facts """
-        data = dict()
+        data = {}
         data[fact_name + '_password'] = self.password
         data[fact_name + '_username'] = self.username
         return data
@@ -171,7 +171,7 @@ def main():
                         {"id": password_id, "field": match_field, "field_id": match_field_id})
 
     facts = password.gather_facts(fact_name)
-    facts_result = dict(changed=False, ansible_facts=facts)
+    facts_result = { 'changed': False, 'ansible_facts': facts }
     module.exit_json(**facts_result)
 
 if __name__ == '__main__':
