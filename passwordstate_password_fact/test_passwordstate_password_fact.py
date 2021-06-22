@@ -27,7 +27,7 @@ class PasswordTest(unittest.TestCase):
                             {'id': '999', 'field': None, 'field_id': None})
 
         facts = password.gather_facts('fact_name_prefix')
-        expected = {'fact_name_prefix_password': 'foo'}
+        expected = {'fact_name_prefix_password': 'foo', 'fact_name_prefix_username': 'foobar'}
         self.assertEqual(expected, facts)
 
     @mock.patch('requests.get', autospec=True)
@@ -47,5 +47,5 @@ class PasswordTest(unittest.TestCase):
                             {'id': None, 'field': 'GenericField1', 'field_id': '123'})
 
         facts = password.gather_facts('fact_name_prefix')
-        expected = {'fact_name_prefix_password': 'foo'}
+        expected = {'fact_name_prefix_password': 'foo', 'fact_name_prefix_username': 'foobar'}
         self.assertEqual(expected, facts)

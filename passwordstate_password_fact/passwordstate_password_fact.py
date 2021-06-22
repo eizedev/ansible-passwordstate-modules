@@ -31,6 +31,11 @@ class Password(object):
         return self.api.get_password_fields(self)['Password']
 
     @property
+    def username(self):
+        """ fetch the password from the api """
+        return self.api.get_password_fields(self)['UserName']
+
+    @property
     def type(self):
         """ the method to uniquely identify the password """
         if hasattr(self, 'password_id'):
@@ -43,6 +48,7 @@ class Password(object):
         """ gather facts """
         data = dict()
         data[fact_name + '_password'] = self.password
+        data[fact_name + '_username'] = self.username
         return data
 
 class PasswordState(object):
