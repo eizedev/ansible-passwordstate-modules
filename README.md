@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/eizedev/ansible-passwordstate-modules/actions/workflows/build.yml/badge.svg)](https://github.com/eizedev/ansible-passwordstate-modules/actions/workflows/build.yml)
+[![Build and Test Status](https://github.com/eizedev/ansible-passwordstate-modules/actions/workflows/build.yml/badge.svg)](https://github.com/eizedev/ansible-passwordstate-modules/actions/workflows/build.yml) [![CodeQL](https://github.com/eizedev/ansible-passwordstate-modules/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eizedev/ansible-passwordstate-modules/actions/workflows/codeql-analysis.yml)
 
 # Ansible PasswordState Modules
 
