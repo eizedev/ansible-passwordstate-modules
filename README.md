@@ -5,8 +5,10 @@
 This repository contains two ansible modules for
 setting and getting passwordstate passwords.
 
-It has been rebuilt from the original [BoxUK modules](https://github.com/boxuk/ansible-boxuk-modules-passwordstate)
-to run on Python 3, use the `requests` library in place of `urllib`, and add functionality for using the Windows Authentication API.
+It is based on the fork of [KBerstene](https://github.com/KBerstene/ansible-passwordstate-modules) who has rebuilt the module from the original [BoxUK modules](https://github.com/boxuk/ansible-boxuk-modules-passwordstate)
+to run on Python 3. It uses the `requests` library in place of `urllib` and he add functionality for using the Windows Authentication API.
+
+Currently i have added more facts to the returned result so we use other field values as well.
 
 All Python prerequisites can be installed using `python3 -m pip install -r dev-requirements.txt`.
 
